@@ -6,20 +6,20 @@
 import { CalculationMethod, MosqueSettings } from './types';
 
 export const DEFAULT_SETTINGS: MosqueSettings = {
-  name: 'MASJID AR ROHIIM',
-  city: 'Bantul',
-  province: 'DIY',
-  district: 'Bantul',
-  address: 'Kanoman, Tegal Pasar, Banguntapan, Bantul, DIY',
+  name: 'MUSHOLAH ARRAHMAH',
+  city: 'Serang',
+  province: 'Banten',
+  district: 'Serang',
+  address: 'Komplek BCP 2 Ranjeng Ciruas',
   runningText: 'Semua orang punya masa-masa kelam dan hanya orang bodoh yang tidak mau belajar dari kesalahannya.',
-  latitude: -7.8189, // Bantul area
-  longitude: 110.4042,
+  latitude: -6.114196248039071, // Bantul area
+  longitude: 106.2276108127061,
   timezone: 'Asia/Jakarta',
   calculationMethod: CalculationMethod.KEMENAG,
   useOnlineAPI: false,
   onlineAPIProvider: 'aladhan',
   mediaType: 'slideshow',
-  mediaUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+  mediaUrl: 'https://www.youtube.com/watch?v=Y-Y_U1XTgik',
   slideshowUrls: [
     "https://images.unsplash.com/photo-1542810634-71277d95dcbb?q=80&w=2070&auto=format&fit=crop",
     "https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?q=80&w=2070&auto=format&fit=crop",
