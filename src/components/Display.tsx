@@ -139,7 +139,7 @@ export default function Display({ settings, onOpenAdmin }: DisplayProps) {
         {/* Left: Date */}
         <div className="flex flex-col pt-2">
           <div className="text-3xl font-bold text-[#008a2e] tracking-tight">
-            {format(now, 'd MMMM yyyy', { locale: id })} <span className="mx-1">/</span> {formatHijriDate(now)}
+            {format(now, 'd MMMM yyyy', { locale: id })} <span className="mx-1">/</span> {formatHijriDate(now, settings.hijriAdjustment)}
           </div>
           <div className="h-[3px] bg-[#008a2e] w-full mt-1"></div>
         </div>

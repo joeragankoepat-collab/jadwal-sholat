@@ -239,6 +239,20 @@ export default function Admin({ settings, onSave, onClose }: AdminProps) {
                   )}
                 </div>
               </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-zinc-400">Koreksi Tanggal Hijriah (Hari)</label>
+                <div className="flex items-center gap-4">
+                  <input 
+                    type="number"
+                    name="hijriAdjustment"
+                    value={formData.hijriAdjustment}
+                    onChange={(e) => setFormData(prev => ({ ...prev, hijriAdjustment: parseInt(e.target.value) || 0 }))}
+                    className="w-24 bg-zinc-800 border border-white/10 rounded-xl p-3 text-white focus:ring-2 focus:ring-emerald-500 outline-none"
+                  />
+                  <span className="text-xs text-zinc-500">Gunakan angka negatif (misal: -1) untuk memundurkan, atau positif (misal: 1) untuk memajukan.</span>
+                </div>
+              </div>
             </section>
           )}
 

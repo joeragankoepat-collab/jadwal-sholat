@@ -243,13 +243,16 @@ function parseIndonesianTimings(data: any, date: Date): PrayerTimeData[] {
   return result;
 }
 
-export function formatHijriDate(date: Date): string {
+export function formatHijriDate(date: Date, adjustment: number = 0): string {
   try {
+    const adjustedDate = new Date(date);
+    adjustedDate.setDate(adjustedDate.getDate() + adjustment);
+    
     return new Intl.DateTimeFormat('id-ID-u-ca-islamic-umalqura-nu-latn', {
       day: 'numeric',
       month: 'long',
       year: 'numeric',
-    }).format(date);
+    }).format(adjustedDate);
   } catch (e) {
     return 'Hijri Date Unavailable';
   }

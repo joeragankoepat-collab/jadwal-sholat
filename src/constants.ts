@@ -41,6 +41,7 @@ export const DEFAULT_SETTINGS: MosqueSettings = {
     isha: 15,
   },
   theme: 'green',
+  hijriAdjustment: 0,
 };
 
 export const PRAYER_LABELS: Record<string, string> = {

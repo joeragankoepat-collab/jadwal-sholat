@@ -50,6 +50,7 @@ export interface MosqueSettings {
     isha: number;
   };
   theme: 'dark' | 'light' | 'green';
+  hijriAdjustment: number;
 }
 
 export type PrayerName = 'imsak' | 'fajr' | 'sunrise' | 'dhuha' | 'dhuhr' | 'asr' | 'maghrib' | 'isha';
