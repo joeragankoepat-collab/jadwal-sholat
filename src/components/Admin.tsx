@@ -4,7 +4,7 @@
  */
 
 import React, { useState } from 'react';
-import { X, Save, MapPin, Clock, Palette, Info, Settings as SettingsIcon, Image, Youtube } from 'lucide-react';
+import { X, Save, MapPin, Clock, Palette, Info, Settings as SettingsIcon, Image, Youtube, Plus, Trash2 } from 'lucide-react';
 import { MosqueSettings, CalculationMethod } from '../types';
 
 interface AdminProps {
@@ -43,6 +43,28 @@ export default function Admin({ settings, onSave, onClose }: AdminProps) {
         [name]: type === 'number' ? parseFloat(value) : value
       }));
     }
+  };
+
+  const handleAddSlide = () => {
+    setFormData(prev => ({
+      ...prev,
+      slideshowUrls: [...prev.slideshowUrls, '']
+    }));
+  };
+
+  const handleRemoveSlide = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      slideshowUrls: prev.slideshowUrls.filter((_, i) => i !== index)
+    }));
+  };
+
+  const handleSlideChange = (index: number, value: string) => {
+    setFormData(prev => {
+      const newUrls = [...prev.slideshowUrls];
+      newUrls[index] = value;
+      return { ...prev, slideshowUrls: newUrls };
+    });
   };
 
   return (
@@ -273,6 +295,47 @@ export default function Admin({ settings, onSave, onClose }: AdminProps) {
                     className="w-full bg-zinc-800 border border-white/10 rounded-xl p-3 text-white focus:ring-2 focus:ring-red-500 outline-none"
                   />
                   <p className="text-[10px] text-zinc-500 italic">Pastikan URL valid dan dapat diakses secara publik.</p>
+                </div>
+              )}
+
+              {formData.mediaType === 'slideshow' && (
+                <div className="space-y-4 animate-in zoom-in-95 duration-200">
+                  <div className="flex justify-between items-center">
+                    <label className="text-sm font-medium text-zinc-400">Daftar Link Foto Slideshow</label>
+                    <button 
+                      type="button"
+                      onClick={handleAddSlide}
+                      className="flex items-center gap-2 text-xs font-bold text-emerald-500 hover:text-emerald-400 transition-colors"
+                    >
+                      <Plus size={14} />
+                      Tambah Foto
+                    </button>
+                  </div>
+                  
+                  <div className="space-y-3 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                    {formData.slideshowUrls.map((url, index) => (
+                      <div key={index} className="flex gap-2">
+                        <input 
+                          value={url}
+                          onChange={(e) => handleSlideChange(index, e.target.value)}
+                          placeholder="https://images.unsplash.com/..."
+                          className="flex-1 bg-zinc-800 border border-white/10 rounded-xl p-3 text-white text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
+                        />
+                        <button 
+                          type="button"
+                          onClick={() => handleRemoveSlide(index)}
+                          className="p-3 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white rounded-xl transition-all"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      </div>
+                    ))}
+                    {formData.slideshowUrls.length === 0 && (
+                      <div className="text-center py-8 border-2 border-dashed border-white/5 rounded-2xl">
+                        <p className="text-zinc-500 text-sm">Belum ada foto. Klik "Tambah Foto" di atas.</p>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
             </section>

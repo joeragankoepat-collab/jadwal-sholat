@@ -31,6 +31,7 @@ export interface MosqueSettings {
   useOnlineAPI: boolean;
   mediaType: 'slideshow' | 'youtube';
   mediaUrl?: string;
+  slideshowUrls: string[];
   iqomahDelays: {
     fajr: number;
     dhuhr: number;

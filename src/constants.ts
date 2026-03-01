@@ -17,6 +17,12 @@ export const DEFAULT_SETTINGS: MosqueSettings = {
   useOnlineAPI: false,
   mediaType: 'slideshow',
   mediaUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+  slideshowUrls: [
+    "https://images.unsplash.com/photo-1542810634-71277d95dcbb?q=80&w=2070&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?q=80&w=2070&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1564121211835-e88c852648ab?q=80&w=2070&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1584551246679-0daf3d275d0f?q=80&w=2070&auto=format&fit=crop"
+  ],
   iqomahDelays: {
     fajr: 10,
     dhuhr: 8,

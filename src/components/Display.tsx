@@ -24,16 +24,11 @@ export default function Display({ settings, onOpenAdmin }: DisplayProps) {
   const [prayerTimes, setPrayerTimes] = useState<PrayerTimeData[]>([]);
   const [currentSlide, setCurrentSlide] = useState(0);
 
-  const slides = [
-    "https://images.unsplash.com/photo-1542810634-71277d95dcbb?q=80&w=2070&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?q=80&w=2070&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1564121211835-e88c852648ab?q=80&w=2070&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1584551246679-0daf3d275d0f?q=80&w=2070&auto=format&fit=crop"
-  ];
+  const slides = settings.slideshowUrls || [];
 
   // Slideshow timer
   useEffect(() => {
-    if (settings.mediaType === 'slideshow') {
+    if (settings.mediaType === 'slideshow' && slides.length > 0) {
       const timer = setInterval(() => {
         setCurrentSlide(prev => (prev + 1) % slides.length);
       }, 10000);
@@ -181,21 +176,21 @@ export default function Display({ settings, onOpenAdmin }: DisplayProps) {
       {/* Main Content Area - Flexible Height */}
       <main className="flex-1 grid grid-cols-12 gap-6 overflow-hidden">
         {/* Left Column: Info & Schedule */}
-        <div className="col-span-3 flex flex-col gap-4 overflow-hidden">
+        <div className="col-span-3 flex flex-col gap-3 overflow-hidden">
           {/* Clock Card */}
-          <div className="bg-white rounded-2xl shadow-md p-4 flex items-center justify-center border border-slate-200 h-[22%] shrink-0">
-            <div className="text-[6rem] font-bold text-[#008a2e] leading-none tabular-nums tracking-tighter">
+          <div className="bg-white rounded-2xl shadow-md p-3 flex items-center justify-center border border-slate-200 h-[18%] shrink-0">
+            <div className="text-[5rem] font-bold text-[#008a2e] leading-none tabular-nums tracking-tighter">
               {format(now, 'HH:mm')}
             </div>
           </div>
 
           {/* Countdown Pill */}
-          <div className={`rounded-xl py-3 px-4 shadow-lg text-white text-center shrink-0 transition-colors duration-500 ${
+          <div className={`rounded-xl py-2 px-4 shadow-lg text-white text-center shrink-0 transition-colors duration-500 ${
             appState === 'IQOMAH' ? 'bg-amber-600' : 
             appState === 'ADHAN' ? 'bg-red-600 animate-pulse' : 
             'bg-[#008a2e]'
           }`}>
-            <div className="text-2xl font-black uppercase tracking-tight">
+            <div className="text-xl font-black uppercase tracking-tight">
               {appState === 'IQOMAH' ? (
                 <span>IQOMAH - {formatCountdown(iqomahCountdown)}</span>
               ) : appState === 'ADHAN' ? (
@@ -209,25 +204,25 @@ export default function Display({ settings, onOpenAdmin }: DisplayProps) {
           </div>
 
           {/* Vertical Prayer Times */}
-          <div className="flex-1 flex flex-col gap-2 overflow-y-auto pr-1 custom-scrollbar">
+          <div className="flex-1 grid grid-rows-8 gap-1 min-h-0 overflow-hidden">
             {prayerTimes.length === 0 ? (
-              <div className="flex-1 flex items-center justify-center text-slate-400 font-bold uppercase text-xs text-center px-4">
+              <div className="row-span-8 flex items-center justify-center text-slate-400 font-bold uppercase text-xs text-center px-4">
                 Memuat Jadwal...
               </div>
             ) : (
               prayerTimes.map((prayer) => (
                 <div 
                   key={prayer.name}
-                  className={`flex items-center justify-between px-4 py-3 rounded-xl shadow-sm border transition-all duration-300 ${
+                  className={`flex items-center justify-between px-4 rounded-xl shadow-sm border transition-all duration-300 ${
                     prayer.isNext 
                       ? 'bg-[#004d40] border-[#008a2e] ring-2 ring-[#008a2e]/30' 
                       : 'bg-white border-slate-200'
                   }`}
                 >
-                  <span className={`text-lg font-bold uppercase tracking-wider ${prayer.isNext ? 'text-white' : 'text-slate-600'}`}>
+                  <span className={`text-sm font-bold uppercase tracking-wider ${prayer.isNext ? 'text-white' : 'text-slate-600'}`}>
                     {prayer.label}
                   </span>
-                  <span className={`text-2xl font-black tabular-nums tracking-tighter ${prayer.isNext ? 'text-white' : 'text-[#004d40]'}`}>
+                  <span className={`text-lg font-black tabular-nums tracking-tighter ${prayer.isNext ? 'text-white' : 'text-[#004d40]'}`}>
                     {format(prayer.time, 'HH:mm')}
                   </span>
                 </div>
