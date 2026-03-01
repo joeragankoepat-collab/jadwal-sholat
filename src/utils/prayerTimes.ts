@@ -94,69 +94,153 @@ export function getPrayerTimes(date: Date, settings: MosqueSettings): PrayerTime
 
 export async function getOnlinePrayerTimes(date: Date, settings: MosqueSettings): Promise<PrayerTimeData[]> {
   const timestamp = Math.floor(date.getTime() / 1000);
-  const url = `https://api.aladhan.com/v1/timings/${timestamp}?latitude=${settings.latitude}&longitude=${settings.longitude}&method=11`; // 11 is Kemenag RI
-
+  
   try {
-    const response = await fetch(url);
+    let url = '';
+    let fetchOptions: RequestInit = { method: 'GET' };
+    let provider = settings.onlineAPIProvider || 'aladhan';
+
+    if (provider === 'aladhan') {
+      url = `https://api.aladhan.com/v1/timings/${timestamp}?latitude=${settings.latitude}&longitude=${settings.longitude}&method=11`; // 11 is Kemenag RI
+    } else if (provider === 'equran.id') {
+      url = 'https://equran.id/api/v2/shalat';
+      fetchOptions = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          provinsi: settings.province || 'banten',
+          kabkota: settings.district || 'kab. serang'
+        })
+      };
+    }
+
+    const response = await fetch(url, fetchOptions);
+    
+    if (!response.ok) {
+      throw new Error(`API Error: ${response.status}`);
+    }
+
     const json = await response.json();
     
-    if (json.code !== 200) throw new Error('API Error');
-
-    const timings = json.data.timings;
-    const names: PrayerName[] = ['imsak', 'fajr', 'sunrise', 'dhuha', 'dhuhr', 'asr', 'maghrib', 'isha'];
-    const now = new Date();
-    const result: PrayerTimeData[] = [];
-    let nextFound = false;
-
-    // Helper to parse "HH:mm" to Date
-    const parseTime = (timeStr: string) => {
-      const [h, m] = timeStr.split(':').map(Number);
-      const d = new Date(date);
-      d.setHours(h, m, 0, 0);
-      return d;
-    };
-
-    // Aladhan doesn't provide Dhuha directly, we calculate it
-    const sunrise = parseTime(timings.Sunrise);
-    const dhuha = new Date(sunrise.getTime() + 20 * 60 * 1000);
-
-    const timesMap: Record<string, Date> = {
-      imsak: parseTime(timings.Imsak),
-      fajr: parseTime(timings.Fajr),
-      sunrise: sunrise,
-      dhuha: dhuha,
-      dhuhr: parseTime(timings.Dhuhr),
-      asr: parseTime(timings.Asr),
-      maghrib: parseTime(timings.Maghrib),
-      isha: parseTime(timings.Isha),
-    };
-
-    for (const name of names) {
-      const time = timesMap[name];
-      let isNext = false;
-      
-      if (!nextFound && time && time > now) {
-        isNext = true;
-        nextFound = true;
-      }
-
-      result.push({
-        name,
-        label: PRAYER_LABELS[name],
-        time: time || new Date(),
-        isNext,
-      });
+    // Handle Indonesian API Format (as provided by user)
+    if (json.data && json.data.jadwal && Array.isArray(json.data.jadwal)) {
+      return parseIndonesianTimings(json.data, date);
     }
 
-    if (!nextFound && result.length > 0) {
-      result[0].isNext = true;
-    }
+    // Aladhan or Regional (City-based Aladhan) Response Parsing
+    if (provider === 'aladhan' || provider === 'equran.id') {
+      if (json.code !== 200) throw new Error('API Error: ' + (json.status || 'Unknown error'));
+      const timings = json.data.timings;
+      return parseAladhanTimings(timings, date);
+    } 
 
-    return result;
+    return getPrayerTimes(date, settings);
   } catch (error) {
     console.error('Failed to fetch online prayer times, falling back to offline:', error);
     return getPrayerTimes(date, settings);
   }
+}
+
+function parseAladhanTimings(timings: any, date: Date): PrayerTimeData[] {
+  const names: PrayerName[] = ['imsak', 'fajr', 'sunrise', 'dhuha', 'dhuhr', 'asr', 'maghrib', 'isha'];
+  const now = new Date();
+  const result: PrayerTimeData[] = [];
+  let nextFound = false;
+
+  const parseTime = (timeStr: string) => {
+    const [h, m] = timeStr.split(':').map(Number);
+    const d = new Date(date);
+    d.setHours(h, m, 0, 0);
+    return d;
+  };
+
+  const sunrise = parseTime(timings.Sunrise);
+  const dhuha = new Date(sunrise.getTime() + 20 * 60 * 1000);
+
+  const timesMap: Record<string, Date> = {
+    imsak: parseTime(timings.Imsak),
+    fajr: parseTime(timings.Fajr),
+    sunrise: sunrise,
+    dhuha: dhuha,
+    dhuhr: parseTime(timings.Dhuhr),
+    asr: parseTime(timings.Asr),
+    maghrib: parseTime(timings.Maghrib),
+    isha: parseTime(timings.Isha),
+  };
+
+  for (const name of names) {
+    const time = timesMap[name];
+    let isNext = false;
+    if (!nextFound && time && time > now) {
+      isNext = true;
+      nextFound = true;
+    }
+    result.push({
+      name,
+      label: PRAYER_LABELS[name],
+      time: time || new Date(),
+      isNext,
+    });
+  }
+
+  if (!nextFound && result.length > 0) {
+    result[0].isNext = true;
+  }
+
+  return result;
+}
+
+function parseIndonesianTimings(data: any, date: Date): PrayerTimeData[] {
+  const names: PrayerName[] = ['imsak', 'fajr', 'sunrise', 'dhuha', 'dhuhr', 'asr', 'maghrib', 'isha'];
+  const now = new Date();
+  const result: PrayerTimeData[] = [];
+  let nextFound = false;
+
+  // Find today's entry in the jadwal array
+  const todayDate = date.getDate();
+  const todayJadwal = data.jadwal.find((j: any) => j.tanggal === todayDate) || data.jadwal[0];
+
+  const parseTime = (timeStr: string) => {
+    if (!timeStr) return new Date();
+    const [h, m] = timeStr.split(':').map(Number);
+    const d = new Date(date);
+    d.setHours(h, m, 0, 0);
+    return d;
+  };
+
+  const timesMap: Record<string, Date> = {
+    imsak: parseTime(todayJadwal.imsak),
+    fajr: parseTime(todayJadwal.subuh || todayJadwal.shubuh),
+    sunrise: parseTime(todayJadwal.terbit || todayJadwal.sunrise),
+    dhuha: parseTime(todayJadwal.dhuha),
+    dhuhr: parseTime(todayJadwal.dzuhur || todayJadwal.dhuhr),
+    asr: parseTime(todayJadwal.ashar || todayJadwal.asr),
+    maghrib: parseTime(todayJadwal.maghrib),
+    isha: parseTime(todayJadwal.isya || todayJadwal.isha),
+  };
+
+  for (const name of names) {
+    const time = timesMap[name];
+    let isNext = false;
+    if (!nextFound && time && time > now) {
+      isNext = true;
+      nextFound = true;
+    }
+    result.push({
+      name,
+      label: PRAYER_LABELS[name],
+      time: time || new Date(),
+      isNext,
+    });
+  }
+
+  if (!nextFound && result.length > 0) {
+    result[0].isNext = true;
+  }
+
+  return result;
 }
 
 export function formatHijriDate(date: Date): string {

@@ -22,6 +22,8 @@ export enum CalculationMethod {
 export interface MosqueSettings {
   name: string;
   city: string;
+  province: string;
+  district: string;
   address: string;
   runningText: string;
   latitude: number;
@@ -29,6 +31,7 @@ export interface MosqueSettings {
   timezone: string;
   calculationMethod: CalculationMethod;
   useOnlineAPI: boolean;
+  onlineAPIProvider: 'aladhan' | 'equran.id';
   mediaType: 'slideshow' | 'youtube';
   mediaUrl?: string;
   slideshowUrls: string[];

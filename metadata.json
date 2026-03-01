@@ -1,5 +1,5 @@
 {
   "name": "Jadwal Shalat Digital Masjid",
   "description": "Sistem display waktu shalat masjid offline-first dengan countdown adzan, iqomah, dan mode lock shalat.",
-  "requestFramePermissions": []
+  "requestFramePermissions": ["geolocation"]
 }

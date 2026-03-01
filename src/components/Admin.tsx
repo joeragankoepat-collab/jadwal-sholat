@@ -4,7 +4,7 @@
  */
 
 import React, { useState } from 'react';
-import { X, Save, MapPin, Clock, Palette, Info, Settings as SettingsIcon, Image, Youtube, Plus, Trash2 } from 'lucide-react';
+import { X, Save, MapPin, Clock, Palette, Info, Settings as SettingsIcon, Image, Youtube, Plus, Trash2, Navigation } from 'lucide-react';
 import { MosqueSettings, CalculationMethod } from '../types';
 
 interface AdminProps {
@@ -65,6 +65,27 @@ export default function Admin({ settings, onSave, onClose }: AdminProps) {
       newUrls[index] = value;
       return { ...prev, slideshowUrls: newUrls };
     });
+  };
+
+  const handleDetectLocation = () => {
+    if (!navigator.geolocation) {
+      alert('Browser Anda tidak mendukung deteksi lokasi.');
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setFormData(prev => ({
+          ...prev,
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude
+        }));
+        alert('Lokasi berhasil dideteksi!');
+      },
+      (error) => {
+        alert('Gagal mendeteksi lokasi: ' + error.message);
+      }
+    );
   };
 
   return (
@@ -133,6 +154,28 @@ export default function Admin({ settings, onSave, onClose }: AdminProps) {
                   />
                 </div>
               </div>
+              <div className="grid grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-zinc-400">Provinsi (untuk API equran.id)</label>
+                  <input 
+                    name="province"
+                    value={formData.province}
+                    onChange={handleChange}
+                    placeholder="Contoh: banten"
+                    className="w-full bg-zinc-800 border border-white/10 rounded-xl p-3 text-white focus:ring-2 focus:ring-emerald-500 outline-none"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-zinc-400">Kab/Kota (untuk API equran.id)</label>
+                  <input 
+                    name="district"
+                    value={formData.district}
+                    onChange={handleChange}
+                    placeholder="Contoh: kab. serang"
+                    className="w-full bg-zinc-800 border border-white/10 rounded-xl p-3 text-white focus:ring-2 focus:ring-emerald-500 outline-none"
+                  />
+                </div>
+              </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium text-zinc-400">Alamat Lengkap</label>
                 <input 
@@ -175,10 +218,25 @@ export default function Admin({ settings, onSave, onClose }: AdminProps) {
                       className="w-6 h-6 accent-emerald-500 rounded"
                     />
                     <div className="flex flex-col">
-                      <span className="text-sm font-bold text-white">Gunakan API Online (Aladhan)</span>
+                      <span className="text-sm font-bold text-white">Gunakan API Online</span>
                       <span className="text-xs text-zinc-500">Mengambil jadwal shalat dari internet secara otomatis.</span>
                     </div>
                   </label>
+
+                  {formData.useOnlineAPI && (
+                    <div className="space-y-2 animate-in slide-in-from-top-2 duration-200">
+                      <label className="text-sm font-medium text-zinc-400">Pilih Provider API</label>
+                      <select 
+                        name="onlineAPIProvider"
+                        value={formData.onlineAPIProvider}
+                        onChange={handleChange}
+                        className="w-full bg-zinc-800 border border-white/10 rounded-xl p-3 text-white focus:ring-2 focus:ring-emerald-500 outline-none"
+                      >
+                        <option value="aladhan">Aladhan (Koordinat GPS)</option>
+                        <option value="equran.id">Regional (Nama Kota & Provinsi)</option>
+                      </select>
+                    </div>
+                  )}
                 </div>
               </div>
             </section>
@@ -186,6 +244,23 @@ export default function Admin({ settings, onSave, onClose }: AdminProps) {
 
           {activeTab === 'lokasi' && (
             <section className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+              <div className="flex justify-between items-center bg-emerald-500/10 border border-emerald-500/20 p-4 rounded-2xl">
+                <div className="flex items-center gap-3">
+                  <Navigation className="text-emerald-500" size={24} />
+                  <div>
+                    <h4 className="text-sm font-bold text-white">Deteksi Lokasi Otomatis</h4>
+                    <p className="text-xs text-zinc-500">Gunakan GPS perangkat untuk mendapatkan koordinat presisi.</p>
+                  </div>
+                </div>
+                <button 
+                  type="button"
+                  onClick={handleDetectLocation}
+                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-all"
+                >
+                  Dapatkan Koordinat
+                </button>
+              </div>
+
               <div className="grid grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-zinc-400">Latitude</label>

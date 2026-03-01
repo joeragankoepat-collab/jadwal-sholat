@@ -8,6 +8,8 @@ import { CalculationMethod, MosqueSettings } from './types';
 export const DEFAULT_SETTINGS: MosqueSettings = {
   name: 'MASJID AR ROHIIM',
   city: 'Bantul',
+  province: 'DIY',
+  district: 'Bantul',
   address: 'Kanoman, Tegal Pasar, Banguntapan, Bantul, DIY',
   runningText: 'Semua orang punya masa-masa kelam dan hanya orang bodoh yang tidak mau belajar dari kesalahannya.',
   latitude: -7.8189, // Bantul area
@@ -15,6 +17,7 @@ export const DEFAULT_SETTINGS: MosqueSettings = {
   timezone: 'Asia/Jakarta',
   calculationMethod: CalculationMethod.KEMENAG,
   useOnlineAPI: false,
+  onlineAPIProvider: 'aladhan',
   mediaType: 'slideshow',
   mediaUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
   slideshowUrls: [
